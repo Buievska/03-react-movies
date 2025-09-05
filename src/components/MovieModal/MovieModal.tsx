@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { getImageUrl } from "../../utils/imageUrl";
+import type { Movie } from "../../types/movie";
 import css from "./MovieModal.module.css";
 import { createPortal } from "react-dom";
 
@@ -8,32 +9,33 @@ interface MovieModalProps {
   onClose: () => void;
 }
 
-function MovieModal({ movie, onClose }: MovieModalProps) {
+export default function MovieModal({ movie, onClose }: MovieModalProps) {
   const modalRoot = document.getElementById("modal-root");
-  if (!modalRoot || !movie) return null;
 
   useEffect(() => {
+    if (!movie) return; // вихід з хуку, а не компонента
+
     const onEsc = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
     };
     document.addEventListener("keydown", onEsc);
 
-    // lock scroll
     const { overflow } = document.body.style;
     document.body.style.overflow = "hidden";
 
     return () => {
       document.removeEventListener("keydown", onEsc);
-      document.body.style.overflow = overflow; // restore
+      document.body.style.overflow = overflow;
     };
-  }, [onClose]);
+  }, [movie, onClose]);
+
+  if (!modalRoot || !movie) return null; // тепер тільки рендер-перевірка
 
   const imageSrc =
     getImageUrl(movie.backdrop_path, "original") ||
-    getImageUrl(movie.poster_path, "original") ||
-    "/no-image.png"; // fallback
+    "https://via.placeholder.com/500x750?text=No+Image";
 
-  const modal = (
+  return createPortal(
     <div
       className={css.backdrop}
       role="dialog"
@@ -43,11 +45,7 @@ function MovieModal({ movie, onClose }: MovieModalProps) {
       }}
     >
       <div className={css.modal}>
-        <button
-          className={css.closeButton}
-          aria-label="Close modal"
-          onClick={onClose}
-        >
+        <button className={css.closeButton} onClick={onClose}>
           &times;
         </button>
         <img src={imageSrc} alt={movie.title} className={css.image} />
@@ -62,10 +60,7 @@ function MovieModal({ movie, onClose }: MovieModalProps) {
           </p>
         </div>
       </div>
-    </div>
+    </div>,
+    modalRoot
   );
-
-  return createPortal(modal, modalRoot);
 }
-
-export default MovieModal;
