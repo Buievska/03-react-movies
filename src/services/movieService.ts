@@ -8,8 +8,16 @@ if (!token) {
   throw new Error("Missing VITE_TMDB_TOKEN");
 }
 
+//TMDB
+interface TMDBResponse {
+  page: number;
+  results: Movie[];
+  total_pages: number;
+  total_results: number;
+}
+
 export async function fetchMovies(query: string): Promise<Movie[]> {
-  const response = await axios.get(API_URL, {
+  const response = await axios.get<TMDBResponse>(API_URL, {
     params: { query },
     headers: {
       Authorization: `Bearer ${token}`,

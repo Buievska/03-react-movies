@@ -32,8 +32,7 @@ export default function MovieModal({ movie, onClose }: MovieModalProps) {
   if (!modalRoot || !movie) return null; // тепер тільки рендер-перевірка
 
   const imageSrc =
-    getImageUrl(movie.backdrop_path, "original") ||
-    "https://via.placeholder.com/500x750?text=No+Image";
+    getImageUrl(movie.backdrop_path, "original") || "/no-image.png";
 
   return createPortal(
     <div
